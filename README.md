@@ -1,10 +1,23 @@
 # ssorepeat
----
 
 Execute commands across multiple AWS accounts available via single sign-on
 (SSO).
 
-## Quick start
+---
+
+## Usage:
+
+``` sh
+ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]]"
+```
+
+`ssorepeat` repeats execution of `COMMAND` across AWS accounts selected via
+`FILTERS` when logged in a Single Sign-On (SSO) session. Use `--profile PROFILE`
+to select session credentials for `botocore.session`. The result of each command
+is returned in a JSON object.
+
+
+## Example
 
 ``` sh
 aws --profile some-profile sso login
@@ -50,5 +63,6 @@ ssorepeat --help
 ```
 
 ---
+
 `ssorepeat` is free software provided as-is under the terms of the Apache
 License, version 2.0. This software and its authors are not affiliated to AWS.

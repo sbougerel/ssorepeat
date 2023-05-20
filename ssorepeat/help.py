@@ -15,10 +15,10 @@
 USAGE = "Usage: ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]]"
 DOCUMENTATION = """ssorepeat
 
-    `ssorepeat` repeats execution of COMMAND accross accounts selected via
-    FILTERS when in a Single Sign-On (SSO) session. Use `--profile PROFILE` to
-    select SSO session credentials for `botocore.session`. The result of each
-    command executed is returned in a JSON object.
+    `ssorepeat` repeats execution of `COMMAND` across AWS accounts selected via
+    `FILTERS` when logged in a single sign-On session. Use `--profile PROFILE`
+    to select session credentials for `botocore.session`. The result of each
+    command is returned in a JSON object.
 
     Usage:
         ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]]

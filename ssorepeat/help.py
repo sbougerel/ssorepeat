@@ -16,9 +16,9 @@ USAGE = "Usage: ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]
 DOCUMENTATION = """ssorepeat
 
     `ssorepeat` repeats execution of `COMMAND` across AWS accounts selected via
-    `FILTERS` when logged in a single sign-On session. Use `--profile PROFILE`
-    to select session credentials for `botocore.session`. The result of each
-    command is returned in a JSON object.
+    `FILTERS` when logged in a Single Sign-On (SSO) session. Use `--profile
+    PROFILE` to select session credentials for `botocore.session`. `ssorepeat`
+    writes the results of `COMMAND` as a JSON on the standard output.
 
     Usage:
         ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]]
@@ -65,7 +65,7 @@ Configuration:
 
     The script assume that `~/.aws/config` is configured with a valid SSO
     section, and that you have already logged in. A typical AWS SSO
-    configuration looks like (ACCOUNTID, ROLE, SSO_SESSION, SUBDOMAIN are
+    configuration looks like this (ACCOUNTID, ROLE, SSO_SESSION, SUBDOMAIN are
     placeholders):
 
         [profile ROLE-ACCOUNTID]
@@ -84,12 +84,21 @@ Configuration:
         aws sso login --profile ROLE-ACCOUNTID
         ssorepeat --profile ROLE-ACCOUNTID s3 ls
 
-    `ssorepeat` parses `~/.aws/config` to find `sso_session` and `sso_role_name`
-    for the given profile; uses this information to retreive the corresponding
-    token and repeat the command across all accounts where `sso_role_name` is
-    available (thus disregarding `sso_account_id`).
+How it works:
 
-    If the profile does not correspond to an SSO session, it returns an error.
+    `ssorepeat` uses `botocore.session` package to find the `sso_session` and
+    `sso_role_name` configured for the profile, as well as the corresponding
+    session token. Using the session token, it fetches temporary AWS
+    credientials for each execution of command, across all accounts and
+    roles selected by `FILTERS`.
+
+    `ssorepeat` provides the temporary AWS credentials to each subprocess via
+    the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and
+    AWS_SESSION_TOKEN. Thus it is possible to use `ssorepeat` to run any command
+    or scripts that uses the AWS SDK, `botocore`, `boto3`, etc.
+
+    If the profile does not correspond to an SSO session, however, it returns an
+    error.
 
 Filters:
 
@@ -131,10 +140,6 @@ Filters:
         (even an empty sequence).
 
 Commands:
-
-    `ssorepeat` sets different AWS credentials in its subprocess' environment at
-    each execution. It modifies AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and
-    AWS_SESSION_TOKEN according to the selected filter sequence.
 
     "list" (default command) helps you ensure that you've selected the correct
     account/role pairs.

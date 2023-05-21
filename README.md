@@ -7,26 +7,25 @@ Execute commands across multiple AWS accounts available via single sign-on
 
 ## Usage:
 
-``` sh
-ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]]"
+```sh
+ssorepeat [--help] [--profile PROFILE] [FILTERS] [COMMAND [ARGS]]
 ```
 
-`ssorepeat` repeats execution of `COMMAND` across AWS accounts selected via
-`FILTERS` when logged in a Single Sign-On (SSO) session. Use `--profile PROFILE`
-to select session credentials for `botocore.session`. The result of each command
-is returned in a JSON object.
-
+Repeats execution of `COMMAND` across AWS accounts selected via `FILTERS` when
+logged in a Single Sign-On (SSO) session. Use `--profile PROFILE` to select
+session credentials for `botocore.session`. `ssorepeat` writes the results of
+`COMMAND` as a JSON on the standard output.
 
 ## Example
 
-``` sh
+```sh
 aws --profile some-profile sso login
 ssorepeat --profile some-profile \
   --include-only "\b[Dd]emo\b" \
   exec aws s3 ls
 ```
 
-After SSO login, `ssorepeat` will run `aws s3 ls` in all accounts whose name
+After SSO login, `ssorepeat` will run `aws s3 ls` in accounts whose name
 contains the word "Demo" or "demo", using the default SSO role setup for this
 profile.
 
@@ -34,13 +33,13 @@ profile.
 
 [Get poetry](https://python-poetry.org/docs/#installation):
 
-``` sh
+```sh
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 Add it to your `$PATH` then proceed into the repository:
 
-``` sh
+```sh
 poetry build
 pip install .
 cp bin/ssorepeat ~/.local/bin
@@ -50,7 +49,7 @@ If you don't like to pollute your own local python environment and only need it
 temporarily, a quick and dirty way is to move `bin/ssorepeat` to the
 repository's root and renaming it:
 
-``` sh
+```sh
 cp bin/ssorepeat ssorepeat.sh
 chmod a+x ssorepeat.sh
 ./assorepeat.sh --help
@@ -58,7 +57,7 @@ chmod a+x ssorepeat.sh
 
 ## Documentation
 
-``` sh
+```sh
 ssorepeat --help
 ```
 

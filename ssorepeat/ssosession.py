@@ -11,9 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""A thin wrapper around botocore.session.Session and
+boto3.Session.client("sso") to handle operations on AWS Single Sign-On.
+
+"""
+
 from typing import Optional
 from functools import lru_cache
 
+from botocore.exceptions import ClientError
 import botocore.session
 import boto3
 
@@ -121,8 +128,10 @@ class SsoSession:
                 roles += response["roleList"]
         return roles
 
-    def get_credentials(self, account_id: str, role_name: str) -> dict[str, str]:
-        """Return a dict of credentials, of the form:
+    def get_credentials(
+        self, account_id: str, role_name: str
+    ) -> Optional[dict[str, str]]:
+        """Return `None` or a dict of credentials, of the form:
 
         {
             "accessKeyId": "string",
@@ -131,9 +140,17 @@ class SsoSession:
             "expiration": 123
         }
 
+        Returns `None` if the account/role association is invalid.
+
         """
-        sso_client = boto3.Session(botocore_session=self._session).client("sso")
-        response = sso_client.get_role_credentials(
-            roleName=role_name, accountId=account_id, accessToken=self._get_token()
-        )
+        try:
+            sso_client = boto3.Session(botocore_session=self._session).client("sso")
+            response = sso_client.get_role_credentials(
+                roleName=role_name, accountId=account_id, accessToken=self._get_token()
+            )
+        except ClientError as exc:
+            # Ignore this exception: this account/role association is invalid
+            if exc.response["Error"]["Code"] == "ForbiddenException":
+                return None
+            raise
         return response["roleCredentials"]

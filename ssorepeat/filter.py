@@ -11,10 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Filter module: create a list of account/role associations from a list of
-accounts and a list of filters (given in arguments).
+
+"""Create a list of account/role associations from a list of accounts and a list
+of filters (given in arguments).
+
 """
-from typing import Optional
 
 import re
 

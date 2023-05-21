@@ -16,33 +16,26 @@ import json
 import sys
 import os
 
-from typing import Optional
+from typing import Protocol, Optional
 
-from botocore.exceptions import ClientError
 
-from ssorepeat.ssosession import SsoSession
+class SsoManager(Protocol):
+    """A protocol for SsoManager"""
+
+    def get_credentials(
+        self, account_id: str, role_name: str
+    ) -> Optional[dict[str, str]]:
+        ...
+
+    def get_account_roles(self, account_id: str) -> list[dict[str, str]]:
+        ...
 
 
 class Executor:
     """Provide functions to run the command"""
 
-    def __init__(self, session: SsoSession) -> None:
+    def __init__(self, session: SsoManager) -> None:
         self.session = session
-
-    def _get_credentials(
-        self,
-        assoc: dict[str, str],
-    ) -> Optional[dict[str, str]]:
-        try:
-            credentials = self.session.get_credentials(
-                assoc["accountId"], assoc["role"]
-            )
-        except ClientError as exc:
-            # Ignore this exception: this account/role association is invalid
-            if exc.response["Error"]["Code"] == "ForbiddenException":
-                return None
-            raise
-        return credentials
 
     def list_associations(self, associations: list[dict[str, str]]) -> None:
         """list all valid association by checking if roles exist in account.
@@ -53,7 +46,6 @@ class Executor:
         sys.stdout.write("[")
         first = True
         for assoc in associations:
-            # This is cached already
             roles = self.session.get_account_roles(assoc["accountId"])
             if assoc["role"] not in [role["roleName"] for role in roles]:
                 continue
@@ -74,7 +66,9 @@ class Executor:
         sys.stdout.write("[")
         first = True
         for assoc in associations:
-            credentials = self._get_credentials(assoc)
+            credentials = self.session.get_credentials(
+                assoc["accountId"], assoc["role"]
+            )
             if credentials is None:
                 continue
             if first:
@@ -109,7 +103,9 @@ class Executor:
         sys.stdout.write("[")
         first = True
         for assoc in associations:
-            credentials = self._get_credentials(assoc)
+            credentials = self.session.get_credentials(
+                assoc["accountId"], assoc["role"]
+            )
             if credentials is None:
                 continue
             if first:

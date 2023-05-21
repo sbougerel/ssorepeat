@@ -13,7 +13,6 @@
 # limitations under the License.
 """CLI entry point for ssorepeat"""
 import sys
-import json
 
 from botocore.exceptions import TokenRetrievalError, ProfileNotFound
 
